@@ -1,0 +1,10 @@
+cluster.name: lab-elastic-cluster
+node.name: elastic01-node
+node.master: false
+node.data: true
+node.ingest: false
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+discovery.seed_hosts:
+  - elastic01-master
+  - elastic01-node

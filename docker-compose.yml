@@ -1,0 +1,76 @@
+version: '3'
+services:
+  elastic01-master:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    container_name: elastic01-master
+    environment:
+      - cluster.name=lab-elastic-cluster
+      - discovery.seed_hosts=elastic01-node,elastic02-node
+      - cluster.initial_master_nodes=elastic01-master,elastic01-node
+      - node.master=true
+      - node.data=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic01-master:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic-network
+
+  elastic01-node:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.1.1
+    container_name: elastic01-node
+    environment:
+      - cluster.name=lab-elastic-cluster
+      - discovery.seed_hosts=elastic01-master
+      - cluster.initial_master_nodes=elastic01-master,elastic01-node
+      - node.master=false
+      - node.data=true
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic01-node:/usr/share/elasticsearch/data
+    networks:
+      - elastic-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.1.1
+    container_name: kibana
+    environment:
+      SERVER_NAME: kibana.local
+      ELASTICSEARCH_HOSTS: http://elastic01-master:9200
+    ports:
+      - '5601:5601'
+    networks:
+      - elastic-network
+    depends_on:
+      - elastic01-master
+
+  cerebro:
+    image: lmenezes/cerebro
+    container_name: cerebro
+
+    ports:
+      - 9000:9000
+
+volumes:
+  elastic01-master:
+    driver: local
+  elastic01-node:
+    driver: local
+
+networks:
+  elastic-network:

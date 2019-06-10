@@ -1,0 +1,11 @@
+cluster.name: lab-elastic-cluster
+node.name: elastic01-master
+node.master: true
+node.data: false
+node.ingest: false
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+discovery.seed_hosts:
+  - elastic01-node
+cluster.initial_master_nodes: elastic01-master
+bootstrap.memory_lock: true
